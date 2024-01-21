@@ -1,95 +1,87 @@
-import Image from "next/image";
-import styles from "./page.module.css";
+"use client";
 
-export default function Home() {
+import React, { useEffect, useRef } from "react";
+import { Engine, Render, Runner, World, Bodies, Composite } from "matter-js";
+import Matter from "matter-js";
+
+import blackSpaceShipImg from "../img/spaceship_black.png";
+
+const Home = () => {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  useEffect(() => {
+    let Engine = Matter.Engine;
+    let Render = Matter.Render;
+    let World = Matter.World;
+    let Composites = Matter.Composites;
+    let Bodies = Matter.Bodies;
+    let engine = Engine.create({
+      gravity: {
+        x: 0,
+        y: 0,
+        scale: 0,
+      },
+    });
+
+    let render = Render.create({
+      element: containerRef.current === null ? undefined : containerRef.current,
+      canvas: canvasRef.current === null ? undefined : canvasRef.current,
+      engine: engine,
+      options: {
+        width:
+          containerRef.current === null
+            ? 600
+            : containerRef.current.clientWidth,
+        height:
+          containerRef.current === null
+            ? 600
+            : containerRef.current.clientHeight,
+        background: "white",
+        wireframes: false,
+      },
+    });
+
+    const stack = Composites.stack(
+      0,
+      200 - 75 - 18 * 75,
+      100,
+      300,
+      0,
+      0,
+      function (x: number, y: number) {
+        return Bodies.rectangle(x, y, 76, 76, {
+          angle: Math.PI * (x / 76),
+          render: {
+            sprite: {
+              texture: blackSpaceShipImg.src,
+              xScale: 0.9,
+              yScale: 0.9,
+            },
+          },
+        });
+      }
+    );
+
+    Composite.add(engine.world, [stack]);
+
+    World.add(engine.world, []);
+    Matter.Runner.run(engine);
+    Render.run(render);
+  }, []);
+
   return (
-    <main className={styles.main}>
-      <div className={styles.description}>
-        <p>
-          Get started by editing&nbsp;
-          <code className={styles.code}>src/app/page.tsx</code>
-        </p>
-        <div>
-          <a
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{" "}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className={styles.vercelLogo}
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
-        </div>
-      </div>
-
-      <div className={styles.center}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
-
-      <div className={styles.grid}>
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Docs <span>-&gt;</span>
-          </h2>
-          <p>Find in-depth information about Next.js features and API.</p>
-        </a>
-
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Learn <span>-&gt;</span>
-          </h2>
-          <p>Learn about Next.js in an interactive course with&nbsp;quizzes!</p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Templates <span>-&gt;</span>
-          </h2>
-          <p>Explore starter templates for Next.js.</p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Deploy <span>-&gt;</span>
-          </h2>
-          <p>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
-    </main>
+    <div
+      ref={containerRef}
+      style={{
+        width: "100%",
+        height: "100vh",
+        background: "red",
+      }}
+    >
+      <canvas ref={canvasRef} />
+    </div>
   );
-}
+};
+
+export default Home;
